@@ -5,23 +5,18 @@ const Router = require('koa-router'); // 引入koa-router
 const cors = require('koa2-cors');
 const bodyParser = require('koa-bodyparser');
 
+
 const app = new Koa(); // 创建koa应用
 const router = new Router(); // 创建路由，支持传递参数
 
 app.use(cors()); // 全部允许跨域
 
-const responData = {
-        "code":200,
-        "msg":"success",
-        "data":{
-        }
-};
-const user = require("./modules/user/index");
+// router.prefix('/api')    //配置一个公共路由路径
 
-router.prefix('/api')
-// 指定一个url匹配
-router.post('/login', async ctx => await user.login(ctx,responData))
-      .post('/register', async ctx => await user.reg(ctx,responData))
+// 路由模块化
+const api = require("./api/index")
+router.use('/api',api.routes());
+
 
 // 安装 引入配置中间件
 app.use(bodyParser());
@@ -34,3 +29,4 @@ app.use(router.allowedMethods()); //设置响应头
 app.listen(3000, () => {
     console.log('应用已经启动，访问地址：http://192.168.0.129:3000');
 })
+
