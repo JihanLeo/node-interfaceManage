@@ -3,35 +3,45 @@
  * respon 默认响应对象，可根据接口实际情况进行修改和使用
  */
 
+const db = require("../../api/db");
+
 //首页模块接口处理
 
 const home = {
-    news: function(ctx,respon){
-        ctx.type = 'application/json;charset=UTF-8';
-        console.log('news接口请求参数', ctx.request.body);
+    news: async function (ctx, respon) {
         req = ctx.request.body
-        if(req.userUid == '123456'){
-            respon.data.msg = '操作成功';
-            const newsList = [
-                {
-                    uid:'000001',
-                    title:'新闻标题',
-                    content:'这是新闻内容！'
-                },
-                {
-                    uid:'000002',
-                    title:'新闻标题',
-                    content:'这是新闻内容！'
-                }
-            ]
-            respon.data.newsList = newsList;
-            ctx.body = respon;
-        }else{
-            respon.code = 400
-            respon.msg = '用户信息错误';
-            ctx.body = respon;
-        }
+        let data = await new newsApi(req).query();
+        ctx.type = 'application/json;charset=UTF-8';
+        respon.data.msg = "操作成功"
+        respon.data.newsList = data;
+        ctx.body = respon;
     }
 }
+
+class newsApi {
+    constructor(req) {
+        this.sql_query_user = `SELECT userUid FROM user WHERE userUid = ${req.userUid}`
+        this.sql_query_news = 'SELECT * FROM news'
+    }
+    query() {
+        return new Promise((resolve) => {
+            db.query(this.sql_query_user, (err, result) => {
+                if (err) {
+                    throw err;
+                } else {
+                    if (result) {
+                        db.query(this.sql_query_news, (e, res) => {
+                            if (e) {
+                                throw e;
+                            }
+                            resolve(res)
+                        })
+                    }
+                }
+            })
+        })
+    }
+}
+
 
 module.exports = home
