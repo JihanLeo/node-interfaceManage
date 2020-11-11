@@ -12,9 +12,8 @@ const home = {
         req = ctx.request.body
         let data = await new newsApi(req).query();
         ctx.type = 'application/json;charset=UTF-8';
-        respon.data.msg = "操作成功"
-        respon.data.newsList = data;
-        ctx.body = respon;
+        respon.success.data.newsList = data;
+        ctx.body = respon.success;
     }
 }
 
